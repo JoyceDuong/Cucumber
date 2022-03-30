@@ -1,7 +1,7 @@
 package stepDefinitions;
 
-import java.util.List;
-import java.util.Map;
+
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
@@ -9,11 +9,12 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import PageUI.PageUIs;
-import cucumber.api.DataTable;
+import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -28,7 +29,11 @@ public class sleekSteps {
 	@Given("^I went to the Sleek SG Home page$")
 	public void iWentToTheSleekSGHomePage() {
 		WebDriverManager.chromedriver().setup();
-		driver = new ChromeDriver();
+		ChromeOptions options = new ChromeOptions();
+		options.setExperimentalOption("useAutomationExtension", false);
+		options.setExperimentalOption("excludeSwitches", Collections.singletonList("enable-automation"));
+		driver = new ChromeDriver(options);
+		//driver = new ChromeDriver();
 		driver.get(url);
 		driver.manage().window().maximize();
 		driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
@@ -37,19 +42,15 @@ public class sleekSteps {
 
 	@When("^I click on the Pricing link$")
 	public void iClickOnThePricingLink() {
-		String pricingXpath = "//ul[@id='menu-mega-menu']//a[text()='Pricing']";
-		//waitForElementClickable( pricingXpath);
 		explicitWait = new WebDriverWait(driver, 10);
-		explicitWait.until(ExpectedConditions.elementToBeClickable(By.xpath(pricingXpath)));
-
-		driver.findElement(By.xpath(pricingXpath)).click();
+		explicitWait.until(ExpectedConditions.elementToBeClickable(By.xpath(PageUIs.PRICING_LINK)));
+		driver.findElement(By.xpath(PageUIs.PRICING_LINK)).click();
 
 	}
 
 	@Then("^I should be navigated to the Sleek SG Pricing page$")
 	public void iShouldBeNavigatedToTheSleekSGPricingPage() {
-		Assert.assertTrue(driver.findElement(By.xpath("//h1[text()=concat('Singapore',\"'s best value for money!\")]"))
-				.isDisplayed());
+		Assert.assertTrue(driver.findElement(By.xpath(PageUIs.PRICING_TEXT_VALIDATE)).isDisplayed());
 	}
 
 	@Then("^I quit browser$")
@@ -57,54 +58,59 @@ public class sleekSteps {
 		driver.quit();
 	}
 
-	@When("^I click on LEARN MORE  button for Corporate secretary$")
+	@And("^I click on LEARN MORE  button for Corporate secretary$")
 	public void iClickOnLEARNMOREButtonForCorporateSecretary() {
 		
-		String learnMoreButton = "//span[text()=' Corporate secretary ']/parent::h3/parent::div/parent::div/parent::div/parent::div/following-sibling::div[4]//span[text()=' Learn more ']/parent::span/parent::a";
 		waitForElementClickable(PageUIs.LEARN_MORE_BUTTON);
-		driver.findElement(By.xpath(learnMoreButton)).click();
+		driver.findElement(By.xpath(PageUIs.LEARN_MORE_BUTTON)).click();
 	}
-
-	@Then("^Verify corporate secretary details are correct:$")
-	public void verifyCorporateSecretaryDetailsAreCorrect(DataTable table) {
-		String plan2Xpath = "//div[@id='step2']";
-		String plan4Xpath = "//div[@id='step4']";
-		String plan7Xpath = "//div[@id='step7']";
-
-		List<Map<String, String>> data = table.asMaps(String.class, String.class);
-		
+	
+	@When("^I click on accounting line by (\\d+)$")
+	public void iClickOnAccountingLineBy(int no)  {		
 		js = (JavascriptExecutor) driver;
-		js.executeScript("arguments[0].scrollIntoView(false);",driver.findElement(By.xpath("//div[@data-id='ffa77f5']//p[@class='elementor-heading-title elementor-size-default']")));
+		js.executeScript("arguments[0].scrollIntoView(true);",driver.findElement(By.xpath("//div[@class='elementor-widget-wrap elementor-element-populated elementor-motion-effects-element']")));
 		
+		//p[text()='All plans include:']
 		
-		waitForElementClickable(plan2Xpath);
-		driver.findElement(By.xpath(plan2Xpath)).click();
-		String shareholder02Text = driver.findElement(By.xpath("//div[@data-id='2009123']//p[@class='elementor-heading-title elementor-size-default']")).getText();
-		String price02Text =driver.findElement(By.xpath("//div[@data-id='82e3849']//p[@class='elementor-heading-title elementor-size-default']")).getText();
-		Assert.assertEquals(shareholder02Text, data.get(0).get("noShareholders"));
-		Assert.assertEquals(price02Text,"S"+data.get(0).get("pricePerYear"));		
-		
-
-		waitForElementClickable(plan4Xpath);
-		driver.findElement(By.xpath(plan4Xpath)).click();
-		String shareholder04Text = driver.findElement(By.xpath("//div[@data-id='56bd308']//p[@class='elementor-heading-title elementor-size-default']")).getText();
-		String price04Text =driver.findElement(By.xpath("//div[@data-id='7a0cfe6']//p[@class='elementor-heading-title elementor-size-default']")).getText();
-		Assert.assertEquals(shareholder04Text, data.get(1).get("noShareholders"));
-		Assert.assertEquals(price04Text,"S"+data.get(1).get("pricePerYear"));
-		
-		waitForElementClickable(plan7Xpath);
-		driver.findElement(By.xpath(plan7Xpath)).click();
-		String shareholder07Text = driver.findElement(By.xpath("//div[@data-id='31d595b']//p[@class='elementor-heading-title elementor-size-default']")).getText();
-		String price07Text =driver.findElement(By.xpath("//div[@data-id='a05d362']//p[@class='elementor-heading-title elementor-size-default']")).getText();
-		Assert.assertEquals(shareholder07Text, data.get(2).get("noShareholders"));
-		Assert.assertEquals(price07Text,"S"+data.get(2).get("pricePerYear"));
-		
-
+		if (no == 1) {
+			clickToElement(PageUIs.PLAN_2_BUTTON);
+		} else if (no == 2) {
+			clickToElement(PageUIs.PLAN_4_BUTTON);	
+		}else  {
+			clickToElement(PageUIs.PLAN_7_BUTTON);
+		}
+ 
 	}
+
+	@Then("^Verify noShareholders with (\\d+) Shareholders and pricePerYear with \\$(\\d+)/year by (\\d+)$")
+	public void verifyNoShareholdersWithShareholdersAndPricePerYearWith$YearBy(String noShareholders, String price, int no)  {
+		
+		String shareholderText;
+		String priceText;
+		if (no == 1) {
+			shareholderText = driver.findElement(By.xpath(PageUIs.SHAREHOLDER_PLAN2_TEXT)).getText();
+			priceText =driver.findElement(By.xpath(PageUIs.PRICE_PLAN2_TEXT)).getText();
+		} else if (no == 2) {	
+			shareholderText = driver.findElement(By.xpath(PageUIs.SHAREHOLDER_PLAN4_TEXT)).getText();
+			priceText =driver.findElement(By.xpath(PageUIs.PRICE_PLAN4_TEXT)).getText();
+
+		}else  {
+			shareholderText = driver.findElement(By.xpath(PageUIs.SHAREHOLDER_PLAN7_TEXT)).getText();
+			priceText =driver.findElement(By.xpath(PageUIs.PRICE_PLAN7_TEXT)).getText();
+		}
+	   
+		Assert.assertEquals(shareholderText,noShareholders );
+		Assert.assertEquals(priceText,"S"+ price);
+	}
+
 
 	public void waitForElementClickable( String xpath) {
 		explicitWait = new WebDriverWait(driver, 10);
 		explicitWait.until(ExpectedConditions.elementToBeClickable(By.xpath(xpath)));
+	}
+	
+	public void clickToElement( String xpath) {
+		driver.findElement(By.xpath(xpath)).click();
 	}
 	
     }
