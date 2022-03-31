@@ -10,7 +10,6 @@ import cucumber.api.junit.Cucumber;
 @CucumberOptions(
              features = "src/test/java/features",
              glue = "stepDefinitions",   
-             //dryRun = true,
              monochrome = true,
              plugin = {"pretty", "html:target/site/cucumber-report-default", "json:target/site/cucumber.json" },
              snippets = SnippetType.CAMELCASE,

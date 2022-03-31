@@ -15,6 +15,7 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import Commons.BaseTest;
 import PageUI.PageUIs;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -22,7 +23,7 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import io.github.bonigarcia.wdm.WebDriverManager;
 
-public class sleekSteps {
+public class sleekSteps extends BaseTest{
 	WebDriver driver;
 	WebDriverWait explicitWait;
 	JavascriptExecutor jsExecutor;
@@ -30,15 +31,10 @@ public class sleekSteps {
 
 	@Given("^I went to the Sleek SG Home page$")
 	public void iWentToTheSleekSGHomePage() {
-		WebDriverManager.chromedriver().setup();
-		ChromeOptions options = new ChromeOptions();
-		options.setExperimentalOption("useAutomationExtension", false);
-		options.setExperimentalOption("excludeSwitches", Collections.singletonList("enable-automation"));
-		driver = new ChromeDriver(options);
-		driver.get(url);
-		driver.manage().window().maximize();
-		driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
+		driver = initBroserDriver(url);
 	}
+
+
 
 	@When("^I click on the Pricing link$")
 	public void iClickOnThePricingLink() {
@@ -86,33 +82,23 @@ public class sleekSteps {
 		if (no == 1) {
 			waitForElementClickable(PageUIs.PLAN_2_BUTTON);
 			clickToElementByJS(PageUIs.PLAN_2_BUTTON);
-//			clickToElement(PageUIs.PLAN_2_BUTTON);
-//			WebElement button2 = driver.findElement(By.xpath(PageUIs.PLAN_2_BUTTON));
-//			Actions actionBuilder = new Actions(driver);
-//			actionBuilder.click(button2).build().perform();
+
 			
 		} else if (no == 2) {
 			System.out.println("Đã vào click 2");
 			waitForElementClickable(PageUIs.PLAN_4_BUTTON);
 			clickToElementByJS(PageUIs.PLAN_4_BUTTON);
-//			clickToElement(PageUIs.PLAN_4_BUTTON);	
-//			WebElement button2 = driver.findElement(By.xpath(PageUIs.PLAN_4_BUTTON));
-//			Actions actionBuilder = new Actions(driver);
-//			actionBuilder.click(button2).build().perform();
+
 		}else  {
 			waitForElementClickable(PageUIs.PLAN_7_BUTTON);
 			clickToElementByJS(PageUIs.PLAN_7_BUTTON);
-//			clickToElement(PageUIs.PLAN_7_BUTTON);
-//			WebElement button2 = driver.findElement(By.xpath(PageUIs.PLAN_7_BUTTON));
-//			Actions actionBuilder = new Actions(driver);
-//			actionBuilder.click(button2).build().perform();
+
 		}
  
 	}
 	
-
-	@Then("^Verify by (\\d+) noShareholders with (\\d+) Shareholders and pricePerYear with \\$(\\d+)/year$")
-	public void verifyByNoShareholdersWithShareholdersAndPricePerYearWith$Year(int no, String noShareholders, String price) {
+	@Then("^Verify by \"([^\"]*)\" noShareholders with \"([^\"]*)\" and pricePerYear with \"([^\"]*)\"$")
+	public void verifyByNoShareholdersWithAndPricePerYearWith(String no, String noShareholders, String price)  {
 
 		String shareholderText;
 		String priceText;
@@ -121,11 +107,11 @@ public class sleekSteps {
 		System.out.println(price);
 		System.out.println(no);
 		
-		if (no == 1) {
+		if (no.equals("1")) {
 			System.out.println("Đã vào verify 1");
 			shareholderText = driver.findElement(By.xpath(PageUIs.SHAREHOLDER_PLAN2_TEXT)).getText();
 			priceText =driver.findElement(By.xpath(PageUIs.PRICE_PLAN2_TEXT)).getText();
-		} else if (no == 2) {	
+		} else if (no.equals("2")) {	
 			System.out.println("Đã vào verify 2");
 			shareholderText = driver.findElement(By.xpath(PageUIs.SHAREHOLDER_PLAN4_TEXT)).getText();
 			priceText =driver.findElement(By.xpath(PageUIs.PRICE_PLAN4_TEXT)).getText();
@@ -139,6 +125,9 @@ public class sleekSteps {
 		Assert.assertEquals(noShareholders, shareholderText);
 		Assert.assertEquals("S"+ price,priceText);
 	}
+	
+
+
 
 
 	public void waitForElementClickable( String xpath) {
