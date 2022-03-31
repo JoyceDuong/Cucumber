@@ -14,14 +14,14 @@ Feature: Sleek Test Cases
     When I click on the Pricing link
     And I click on LEARN MORE  button for Corporate secretary
     And I click on accounting line by <No>
-    Then Verify noShareholders with <noShareholders> and pricePerYear with <pricePerYear> by <No>
+    Then Verify by <No> noShareholders with <noShareholders> and pricePerYear with <pricePerYear>
     And I quit browser
     
     Examples: Data Table
       |No | noShareholders     | pricePerYear | 
       | 1 | 2 Shareholders     | $360/year    | 
       | 2 | 6 - 9 Shareholders | $540/year    | 
-      | 3 |> 30 Shareholders  | $1,140/year  |
+      | 3 |> 30 Shareholders  | $1,140/year   |
     
     
     

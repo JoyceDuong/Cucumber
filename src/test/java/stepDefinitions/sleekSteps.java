@@ -8,8 +8,10 @@ import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -23,7 +25,7 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 public class sleekSteps {
 	WebDriver driver;
 	WebDriverWait explicitWait;
-	JavascriptExecutor js;
+	JavascriptExecutor jsExecutor;
 	String url = "https://sleek.com/sg/";
 
 	@Given("^I went to the Sleek SG Home page$")
@@ -33,11 +35,9 @@ public class sleekSteps {
 		options.setExperimentalOption("useAutomationExtension", false);
 		options.setExperimentalOption("excludeSwitches", Collections.singletonList("enable-automation"));
 		driver = new ChromeDriver(options);
-		//driver = new ChromeDriver();
 		driver.get(url);
 		driver.manage().window().maximize();
 		driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
-
 	}
 
 	@When("^I click on the Pricing link$")
@@ -63,55 +63,103 @@ public class sleekSteps {
 		
 		waitForElementClickable(PageUIs.LEARN_MORE_BUTTON);
 		driver.findElement(By.xpath(PageUIs.LEARN_MORE_BUTTON)).click();
+		
+		try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	@When("^I click on accounting line by (\\d+)$")
 	public void iClickOnAccountingLineBy(int no)  {		
-		js = (JavascriptExecutor) driver;
-		js.executeScript("arguments[0].scrollIntoView(true);",driver.findElement(By.xpath("//div[@class='elementor-widget-wrap elementor-element-populated elementor-motion-effects-element']")));
+		jsExecutor = (JavascriptExecutor) driver;	
+
+		jsExecutor.executeScript("arguments[0].scrollIntoView(false);",driver.findElement(By.xpath("//p[text()='Common add-ons that are not included in the yearly price:']")));
+		jsExecutor.executeScript("window.scrollBy(0,50)");
+		Actions actionBuilder = new Actions(driver);
+		actionBuilder.moveToElement(driver.findElement(By.xpath("//p[text()='Common add-ons that are not included in the yearly price:']"))).perform();
+		//waitForElementVisible("//div[@class='initial-message-bubble']");
 		
-		//p[text()='All plans include:']
 		
+
 		if (no == 1) {
-			clickToElement(PageUIs.PLAN_2_BUTTON);
+			waitForElementClickable(PageUIs.PLAN_2_BUTTON);
+			clickToElementByJS(PageUIs.PLAN_2_BUTTON);
+//			clickToElement(PageUIs.PLAN_2_BUTTON);
+//			WebElement button2 = driver.findElement(By.xpath(PageUIs.PLAN_2_BUTTON));
+//			Actions actionBuilder = new Actions(driver);
+//			actionBuilder.click(button2).build().perform();
+			
 		} else if (no == 2) {
-			clickToElement(PageUIs.PLAN_4_BUTTON);	
+			System.out.println("Đã vào click 2");
+			waitForElementClickable(PageUIs.PLAN_4_BUTTON);
+			clickToElementByJS(PageUIs.PLAN_4_BUTTON);
+//			clickToElement(PageUIs.PLAN_4_BUTTON);	
+//			WebElement button2 = driver.findElement(By.xpath(PageUIs.PLAN_4_BUTTON));
+//			Actions actionBuilder = new Actions(driver);
+//			actionBuilder.click(button2).build().perform();
 		}else  {
-			clickToElement(PageUIs.PLAN_7_BUTTON);
+			waitForElementClickable(PageUIs.PLAN_7_BUTTON);
+			clickToElementByJS(PageUIs.PLAN_7_BUTTON);
+//			clickToElement(PageUIs.PLAN_7_BUTTON);
+//			WebElement button2 = driver.findElement(By.xpath(PageUIs.PLAN_7_BUTTON));
+//			Actions actionBuilder = new Actions(driver);
+//			actionBuilder.click(button2).build().perform();
 		}
  
 	}
+	
 
-	@Then("^Verify noShareholders with (\\d+) Shareholders and pricePerYear with \\$(\\d+)/year by (\\d+)$")
-	public void verifyNoShareholdersWithShareholdersAndPricePerYearWith$YearBy(String noShareholders, String price, int no)  {
-		
+	@Then("^Verify by (\\d+) noShareholders with (\\d+) Shareholders and pricePerYear with \\$(\\d+)/year$")
+	public void verifyByNoShareholdersWithShareholdersAndPricePerYearWith$Year(int no, String noShareholders, String price) {
+
 		String shareholderText;
 		String priceText;
+		
+		System.out.println(noShareholders);
+		System.out.println(price);
+		System.out.println(no);
+		
 		if (no == 1) {
+			System.out.println("Đã vào verify 1");
 			shareholderText = driver.findElement(By.xpath(PageUIs.SHAREHOLDER_PLAN2_TEXT)).getText();
 			priceText =driver.findElement(By.xpath(PageUIs.PRICE_PLAN2_TEXT)).getText();
 		} else if (no == 2) {	
+			System.out.println("Đã vào verify 2");
 			shareholderText = driver.findElement(By.xpath(PageUIs.SHAREHOLDER_PLAN4_TEXT)).getText();
 			priceText =driver.findElement(By.xpath(PageUIs.PRICE_PLAN4_TEXT)).getText();
 
 		}else  {
+			System.out.println("Đã vào verify 3");
 			shareholderText = driver.findElement(By.xpath(PageUIs.SHAREHOLDER_PLAN7_TEXT)).getText();
 			priceText =driver.findElement(By.xpath(PageUIs.PRICE_PLAN7_TEXT)).getText();
 		}
 	   
-		Assert.assertEquals(shareholderText,noShareholders );
-		Assert.assertEquals(priceText,"S"+ price);
+		Assert.assertEquals(noShareholders, shareholderText);
+		Assert.assertEquals("S"+ price,priceText);
 	}
 
 
 	public void waitForElementClickable( String xpath) {
-		explicitWait = new WebDriverWait(driver, 10);
+		explicitWait = new WebDriverWait(driver, 30);
 		explicitWait.until(ExpectedConditions.elementToBeClickable(By.xpath(xpath)));
 	}
 	
 	public void clickToElement( String xpath) {
 		driver.findElement(By.xpath(xpath)).click();
 	}
+	   
+    public void clickToElementByJS( String xpath) {
+        jsExecutor = (JavascriptExecutor) driver;
+        WebElement element = driver.findElement(By.xpath(xpath));
+        jsExecutor.executeScript("arguments[0].click();", element);
+    }
+    
+    public void waitForElementVisible(String locator){
+        explicitWait = new WebDriverWait(driver,20);
+        explicitWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(locator)));
+    }
 	
     }
 
