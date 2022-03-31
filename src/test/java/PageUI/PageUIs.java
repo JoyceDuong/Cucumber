@@ -16,4 +16,5 @@ public class PageUIs {
 	public static final String PRICE_PLAN2_TEXT = "//div[@data-id='82e3849']//p[@class='elementor-heading-title elementor-size-default']";
 	public static final String PRICE_PLAN4_TEXT = "//div[@data-id='7a0cfe6']//p[@class='elementor-heading-title elementor-size-default']";
 	public static final String PRICE_PLAN7_TEXT = "//div[@data-id='a05d362']//p[@class='elementor-heading-title elementor-size-default']";
+	public static final String SCROLL_ELEMENT = "//p[text()='Common add-ons that are not included in the yearly price:']";
 }

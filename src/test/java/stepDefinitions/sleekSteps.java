@@ -1,155 +1,93 @@
 package stepDefinitions;
 
-
-import java.util.Collections;
-import java.util.concurrent.TimeUnit;
-
 import org.junit.Assert;
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-
-import Commons.BaseTest;
+import Commons.*;
 import PageUI.PageUIs;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import io.github.bonigarcia.wdm.WebDriverManager;
 
-public class sleekSteps extends BaseTest{
+public class sleekSteps extends BaseTest {
+
 	WebDriver driver;
-	WebDriverWait explicitWait;
-	JavascriptExecutor jsExecutor;
-	String url = "https://sleek.com/sg/";
 
 	@Given("^I went to the Sleek SG Home page$")
 	public void iWentToTheSleekSGHomePage() {
-		driver = initBroserDriver(url);
+		PropertiesFile.setPropertiesFile();
+		driver = initBroserDriver(PropertiesFile.getPropValue("url"));
 	}
-
-
 
 	@When("^I click on the Pricing link$")
 	public void iClickOnThePricingLink() {
-		explicitWait = new WebDriverWait(driver, 10);
-		explicitWait.until(ExpectedConditions.elementToBeClickable(By.xpath(PageUIs.PRICING_LINK)));
-		driver.findElement(By.xpath(PageUIs.PRICING_LINK)).click();
+		waitForElementClickable(driver, PageUIs.PRICING_LINK);
+		clickToElement(driver, PageUIs.PRICING_LINK);
 
 	}
 
 	@Then("^I should be navigated to the Sleek SG Pricing page$")
 	public void iShouldBeNavigatedToTheSleekSGPricingPage() {
-		Assert.assertTrue(driver.findElement(By.xpath(PageUIs.PRICING_TEXT_VALIDATE)).isDisplayed());
+		Assert.assertTrue(isElementDisplayed(driver, PageUIs.PRICING_TEXT_VALIDATE));
 	}
 
 	@Then("^I quit browser$")
 	public void iQuitBrowser() {
-		driver.quit();
+		tearDownBrowser(driver);
 	}
 
 	@And("^I click on LEARN MORE  button for Corporate secretary$")
 	public void iClickOnLEARNMOREButtonForCorporateSecretary() {
-		
-		waitForElementClickable(PageUIs.LEARN_MORE_BUTTON);
-		driver.findElement(By.xpath(PageUIs.LEARN_MORE_BUTTON)).click();
-		
-		try {
-			Thread.sleep(3000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		waitForElementClickable(driver, PageUIs.LEARN_MORE_BUTTON);
+		clickToElement(driver, PageUIs.LEARN_MORE_BUTTON);
+		sleepInSecond(3);
 	}
-	
+
 	@When("^I click on accounting line by (\\d+)$")
-	public void iClickOnAccountingLineBy(int no)  {		
-		jsExecutor = (JavascriptExecutor) driver;	
+	public void iClickOnAccountingLineBy(int no) {
+		scrollToElement(driver, PageUIs.SCROLL_ELEMENT);
+		scrollTo50Pixel(driver);
+		moveToElement(driver, PageUIs.SCROLL_ELEMENT);
 
-		jsExecutor.executeScript("arguments[0].scrollIntoView(false);",driver.findElement(By.xpath("//p[text()='Common add-ons that are not included in the yearly price:']")));
-		jsExecutor.executeScript("window.scrollBy(0,50)");
-		Actions actionBuilder = new Actions(driver);
-		actionBuilder.moveToElement(driver.findElement(By.xpath("//p[text()='Common add-ons that are not included in the yearly price:']"))).perform();
-		//waitForElementVisible("//div[@class='initial-message-bubble']");
-		
-		
-
-		if (no == 1) {
-			waitForElementClickable(PageUIs.PLAN_2_BUTTON);
-			clickToElementByJS(PageUIs.PLAN_2_BUTTON);
-
-			
-		} else if (no == 2) {
-			System.out.println("Đã vào click 2");
-			waitForElementClickable(PageUIs.PLAN_4_BUTTON);
-			clickToElementByJS(PageUIs.PLAN_4_BUTTON);
-
-		}else  {
-			waitForElementClickable(PageUIs.PLAN_7_BUTTON);
-			clickToElementByJS(PageUIs.PLAN_7_BUTTON);
-
+		switch (no) {
+		case 1:
+			waitForElementClickable(driver, PageUIs.PLAN_2_BUTTON);
+			clickToElementByJS(driver, PageUIs.PLAN_2_BUTTON);
+			break;
+		case 2:
+			waitForElementClickable(driver, PageUIs.PLAN_4_BUTTON);
+			clickToElementByJS(driver, PageUIs.PLAN_4_BUTTON);
+			break;
+		case 3:
+			waitForElementClickable(driver, PageUIs.PLAN_7_BUTTON);
+			clickToElementByJS(driver, PageUIs.PLAN_7_BUTTON);
+			break;
 		}
- 
+
 	}
-	
+
 	@Then("^Verify by \"([^\"]*)\" noShareholders with \"([^\"]*)\" and pricePerYear with \"([^\"]*)\"$")
-	public void verifyByNoShareholdersWithAndPricePerYearWith(String no, String noShareholders, String price)  {
+	public void verifyByNoShareholdersWithAndPricePerYearWith(String no, String noShareholders, String price) {
+		String shareholderText = "";
+		String priceText = "";
 
-		String shareholderText;
-		String priceText;
-		
-		System.out.println(noShareholders);
-		System.out.println(price);
-		System.out.println(no);
-		
-		if (no.equals("1")) {
-			System.out.println("Đã vào verify 1");
-			shareholderText = driver.findElement(By.xpath(PageUIs.SHAREHOLDER_PLAN2_TEXT)).getText();
-			priceText =driver.findElement(By.xpath(PageUIs.PRICE_PLAN2_TEXT)).getText();
-		} else if (no.equals("2")) {	
-			System.out.println("Đã vào verify 2");
-			shareholderText = driver.findElement(By.xpath(PageUIs.SHAREHOLDER_PLAN4_TEXT)).getText();
-			priceText =driver.findElement(By.xpath(PageUIs.PRICE_PLAN4_TEXT)).getText();
-
-		}else  {
-			System.out.println("Đã vào verify 3");
-			shareholderText = driver.findElement(By.xpath(PageUIs.SHAREHOLDER_PLAN7_TEXT)).getText();
-			priceText =driver.findElement(By.xpath(PageUIs.PRICE_PLAN7_TEXT)).getText();
+		switch (no) {
+		case "1":
+			shareholderText = getTextElement(driver, PageUIs.SHAREHOLDER_PLAN2_TEXT);
+			priceText = getTextElement(driver, PageUIs.PRICE_PLAN2_TEXT);
+			break;
+		case "2":
+			shareholderText = getTextElement(driver, PageUIs.SHAREHOLDER_PLAN4_TEXT);
+			priceText = getTextElement(driver, PageUIs.PRICE_PLAN4_TEXT);
+			break;
+		case "3":
+			shareholderText = getTextElement(driver, PageUIs.SHAREHOLDER_PLAN7_TEXT);
+			priceText = getTextElement(driver, PageUIs.PRICE_PLAN7_TEXT);
+			break;
 		}
-	   
+
 		Assert.assertEquals(noShareholders, shareholderText);
-		Assert.assertEquals("S"+ price,priceText);
+		Assert.assertEquals("S" + price, priceText);
 	}
-	
 
-
-
-
-	public void waitForElementClickable( String xpath) {
-		explicitWait = new WebDriverWait(driver, 30);
-		explicitWait.until(ExpectedConditions.elementToBeClickable(By.xpath(xpath)));
-	}
-	
-	public void clickToElement( String xpath) {
-		driver.findElement(By.xpath(xpath)).click();
-	}
-	   
-    public void clickToElementByJS( String xpath) {
-        jsExecutor = (JavascriptExecutor) driver;
-        WebElement element = driver.findElement(By.xpath(xpath));
-        jsExecutor.executeScript("arguments[0].click();", element);
-    }
-    
-    public void waitForElementVisible(String locator){
-        explicitWait = new WebDriverWait(driver,20);
-        explicitWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(locator)));
-    }
-	
-    }
-
-
+}
